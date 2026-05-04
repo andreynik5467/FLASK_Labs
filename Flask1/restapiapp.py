@@ -1,23 +1,21 @@
 from flask import Flask, jsonify, request
 import datetime
+import io
+import contextlib
+from itertools import cycle
+
 
 app = Flask(__name__)
 
 tasks_lst = []
-
-import io
-import contextlib
-from itertools import cycle
 
 f = io.StringIO()
 with contextlib.redirect_stdout(f):
     import this
 text = f.getvalue()
 
-
 status_lst = ["cancelled", "completed", "in_progress", "pending"]
 priority_lst = ["high", "low", "medium"]
-
 status_cycle = cycle(["cancelled", "completed", "in_progress", "pending"])
 priority_cycle = cycle(["high", "low", "medium"])
 
@@ -50,12 +48,17 @@ for line in text.splitlines():
         }
     )
 
+
+
 @app.route("/api/v1/tasks", methods=["GET"])
 def get_tasks_lst():
     """
     Получение списка всех задач, с поиском
     """
     query = request.args.get("query")
+    order = request.args.get("order", "id")
+    offset = int(request.args.get("offset", 0))
+
     ready_tasks_lst = tasks_lst
     if query:
         ready_tasks_lst = list()
@@ -68,9 +71,21 @@ def get_tasks_lst():
             if flag:
                 ready_tasks_lst.append(task)
 
+    if order[0] == '-':
+        order_key = order[1:]
+        reverse = True
+    else:
+        order_key = order
+        reverse = False
+
+    if order_key in tasks_lst[0].keys():
+        ready_tasks_lst.sort(key=lambda x: x[order_key], reverse=reverse)
+    
+    ready_tasks_lst = ready_tasks_lst[offset:offset+10]
+
     return jsonify(
         {
-            "tasks": ready_tasks_lst[:10],
+            "tasks": ready_tasks_lst,
         }
     )
 
@@ -137,16 +152,14 @@ def patch_tasks(task_id):
     Частичное обновление одной задачи с номером task_id
     """
     data = request.get_json()
-    print(data)
-    print('-' * 80)
     if not data:
         return jsonify({"error": "Отсутствуют данные JSON"}), 400
-    
-    status = request.args.get("status")
+    status = request.args.get('status')
+    priority = request.args.get('priority')
     if status not in status_lst:
-        return jsonify({"error": "Поле `status` невалидно"}), 401
-
-
+        return jsonify({"error": "Поле `status` невалидно"}), 400
+    if priority not in priority_lst:
+        return jsonify({"error": "Поле `priority` невалидно"}), 400
     for task in tasks_lst:
         if task["id"] == int(task_id):
             task["title"] = data.get("title") or task["title"]
@@ -157,6 +170,8 @@ def patch_tasks(task_id):
             return jsonify(task)
     return jsonify({"error": "Задача не найдена"}), 404
 
+
 tasks_lst = normalize(tasks_lst)
+
 if __name__ == "__main__":
     app.run(debug=True)
