@@ -17,7 +17,7 @@ def calc():
     if op == 'add':
         return f'сумма {a} и {b} = {int(a) + int(b)}'
     elif op == 'mul':
-        return f'произведение {a} и {b} = {int(a) * int(b)}'
+        return f'произведение {a} и {b} = {float(a) * float(b)}'
     elif op == 'dif':
         return f'разность {a} и {b} = {int(a) - int(b)}'
     elif op == 'sub':
@@ -27,3 +27,5 @@ def calc():
             return f'Делить на ноль нельзя!!!! '
 if __name__ == '__main__':
     app.run(debug=True)
+
+
