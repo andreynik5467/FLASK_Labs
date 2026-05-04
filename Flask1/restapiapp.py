@@ -4,7 +4,6 @@ import io
 import contextlib
 from itertools import cycle
 
-
 app = Flask(__name__)
 
 tasks_lst = []
@@ -19,6 +18,7 @@ priority_lst = ["high", "low", "medium"]
 status_cycle = cycle(["cancelled", "completed", "in_progress", "pending"])
 priority_cycle = cycle(["high", "low", "medium"])
 
+
 def normalize(d):
     if isinstance(d, dict):
         return {
@@ -29,6 +29,7 @@ def normalize(d):
     if isinstance(d, list):
         return [normalize(i) for i in d]
     return d
+
 
 num = 0
 for line in text.splitlines():
@@ -47,7 +48,6 @@ for line in text.splitlines():
             "deleted_at": None,
         }
     )
-
 
 
 @app.route("/api/v1/tasks", methods=["GET"])
@@ -71,7 +71,7 @@ def get_tasks_lst():
             if flag:
                 ready_tasks_lst.append(task)
 
-    if order[0] == '-':
+    if order[0] == "-":
         order_key = order[1:]
         reverse = True
     else:
@@ -80,14 +80,10 @@ def get_tasks_lst():
 
     if order_key in tasks_lst[0].keys():
         ready_tasks_lst.sort(key=lambda x: x[order_key], reverse=reverse)
-    
-    ready_tasks_lst = ready_tasks_lst[offset:offset+10]
 
-    return jsonify(
-        {
-            "tasks": ready_tasks_lst,
-        }
-    )
+    ready_tasks_lst = ready_tasks_lst[offset : offset + 10]
+
+    return jsonify({"tasks": ready_tasks_lst})
 
 
 @app.route("/api/v1/tasks/<task_id>", methods=["GET"])
@@ -154,8 +150,8 @@ def patch_tasks(task_id):
     data = request.get_json()
     if not data:
         return jsonify({"error": "Отсутствуют данные JSON"}), 400
-    status = request.args.get('status')
-    priority = request.args.get('priority')
+    status = request.args.get("status")
+    priority = request.args.get("priority")
     if status not in status_lst:
         return jsonify({"error": "Поле `status` невалидно"}), 400
     if priority not in priority_lst:
