@@ -16,6 +16,17 @@ text = f.getvalue()
 status_cycle = cycle(["cancelled", "completed", "in_progress", "pending"])
 priority_cycle = cycle(["high", "low", "medium"])
 
+def normalize(d):
+    if isinstance(d, dict):
+        return {
+            k: normalize(v)
+            for k, v in d.items()
+            if k not in ("created_at", "updated_at", "deleted_at")
+        }
+    if isinstance(d, list):
+        return [normalize(i) for i in d]
+    return d
+
 num = 0
 for line in text.splitlines():
     if not line:
@@ -97,6 +108,7 @@ def post_tasks():
         "updated_at": datetime.datetime.now().isoformat(),
         "deleted_at": None,
     }
+
     tasks_lst.append(new_task)
     return jsonify(new_task)
 
@@ -133,16 +145,6 @@ def patch_tasks(task_id):
             return jsonify(task)
     return jsonify({"error": "Задача не найдена"}), 404
 
-def normalize(d):
-    if isinstance(d, dict):
-        return {
-            k: normalize(v)
-            for k, v in d.items()
-            if k not in ("created_at", "updated_at", "deleted_at")
-        }
-    if isinstance(d, list):
-        return [normalize(i) for i in d]
-    return d
 tasks_lst = normalize(tasks_lst)
 if __name__ == "__main__":
     app.run(debug=True)
