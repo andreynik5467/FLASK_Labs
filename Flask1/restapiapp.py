@@ -13,6 +13,11 @@ f = io.StringIO()
 with contextlib.redirect_stdout(f):
     import this
 text = f.getvalue()
+
+
+status_lst = ["cancelled", "completed", "in_progress", "pending"]
+priority_lst = ["high", "low", "medium"]
+
 status_cycle = cycle(["cancelled", "completed", "in_progress", "pending"])
 priority_cycle = cycle(["high", "low", "medium"])
 
@@ -65,7 +70,7 @@ def get_tasks_lst():
 
     return jsonify(
         {
-            "tasks": ready_tasks_lst,
+            "tasks": ready_tasks_lst[:10],
         }
     )
 
@@ -132,8 +137,15 @@ def patch_tasks(task_id):
     Частичное обновление одной задачи с номером task_id
     """
     data = request.get_json()
+    print(data)
+    print('-' * 80)
     if not data:
         return jsonify({"error": "Отсутствуют данные JSON"}), 400
+    
+    status = request.args.get("status")
+    if status not in status_lst:
+        return jsonify({"error": "Поле `status` невалидно"}), 401
+
 
     for task in tasks_lst:
         if task["id"] == int(task_id):
