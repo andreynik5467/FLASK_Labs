@@ -38,14 +38,6 @@
                 </button>
             </form>
 
-            <!--  Предпросмотр перед загрузкой 
-            <div id="preview-box"
-                style="display: none; margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px; text-align: center;">
-                <p style="margin-bottom: 10px; color: #0062f1; font-weight: 500;">Предпросмотр:</p>
-                <img id="preview-image" src="" alt="Предпросмотр" class="preview-thumb"
-                    style="width: 200px; height: 150px;">
-                <p id="preview-filename" style="margin-top: 8px; font-size: 0.95em; color: #444;"></p>
-            </div>-->
 
             <!--  Таблица загруженных файлов -->
             <h2 style="margin-top: 30px;"> Загруженные файлы</h2>
@@ -68,18 +60,7 @@
                     {% set file_uuid = info.get('UUID', key) %} {# fallback на key, если UUID нет в старых записях #}
                     {% set server_path = 'uploads/' + file_uuid + "." + ext %}
                     <tr>
-                        <!-- Превью
-                        <td>
-                            {% if ext in ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'] %}
-                            <a href="{{ url_for('uploaded_file', filename=uuid + '.' + ext) }}" target="_blank">
-                                <img src="{{ url_for('uploaded_file', filename=uuid + '.' + ext) }}"
-                                    alt="{{ info.org }}" class="preview-thumb">
-                            </a>
-                            {% else %}
-                            <div class="file-icon"></div>
-                            {% endif %}
-                        </td>-->
-
+                      
                         <!-- Имя файла -->
                         <td>
                             <strong style="color: #333;">{{ info.org }}</strong><br>
@@ -102,13 +83,6 @@
                         <!-- Дата -->
                         <td>{{ info.get('date', '—') }}</td>
 
-                        <!-- Кнопка просмотра 
-                        <td>
-                            <a href="{{ url_for('uploaded_file', filename=uuid + '.' + ext) }}" target="_blank"
-                                style="color: #0062f1;">
-                                Открыть
-                            </a>
-                        </td>-->
                     </tr>
                     {% endfor %}
                     
@@ -116,35 +90,6 @@
         </div>
     </div>
     
-    <!--  Скрипт предпросмотра 
-    <script>
-        document.getElementById('file').addEventListener('change', function (e) {
-            const previewBox = document.getElementById('preview-box');
-            const previewImg = document.getElementById('preview-image');
-            const previewName = document.getElementById('preview-filename');
-
-            const file = e.target.files[0];
-            if (!file) {
-                previewBox.style.display = 'none';
-                return;
-            }
-
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    previewImg.src = event.target.result;
-                    previewName.textContent = file.name;
-                    previewBox.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                // Иконка для не-изображений
-                previewImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="%230062f1" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10v10H7z"/><path d="M9 9h2v2H9z"/></svg>';
-                previewName.textContent = file.name + ' (предпросмотр недоступен)';
-                previewBox.style.display = 'block';
-            }
-        });
-    </script> -->
     </body>
 
 </html>
