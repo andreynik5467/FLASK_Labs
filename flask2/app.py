@@ -5,7 +5,7 @@ import hashlib
 import uuid
 import json
 from datetime import datetime
-from FLASK_Labs.flask2_lab.flask2_lab.utils import load_json, save_json
+from utils import load_json, save_json
 app = Flask(__name__)
 
 # Настройки
