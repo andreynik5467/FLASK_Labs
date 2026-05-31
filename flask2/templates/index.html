@@ -6,90 +6,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Загрузка файлов | Fruity Aero</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+</head>
 
     <!-- Основной контейнер -->
     <div id="f-container">
         <div class="f-content">
             <h1> Загрузка файлов</h1>
-            
+
             <!-- Flash сообщения -->
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
             <div class="message {{ category }}" style="padding: 10px; margin: 10px 0; border-radius: 8px; " {%
-                if 'error' in category %} {% elif 'success' in category %} {% elif 'warning' in category %}{% endif %}">
-                {{ message }}
-            </div>
+                 if
+            'error' in category %} {% elif 'success' in category %} {% elif 'warning' in category %}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Форма загрузки -->
+        <form action="/upload" method="POST" enctype="multipart/form-data"
+
+        <div>
+            <input type="file" name="file" id="file" required>
+        </div>
+        <button type="submit"
+                style="padding: 10px 25px; background: linear-gradient(135deg, #0062f1, #0052cc); color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: transform 0.2s;">
+            Загрузить
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Test url_for">
+        </button>
+        </form>
+
+
+        <!--  Таблица загруженных файлов -->
+        <h2 style="margin-top: 30px;"> Загруженные файлы</h2>
+
+        {% if files %}
+        <table class="file-table">
+            <thead>
+            <tr>
+
+                <th>Имя файла</th>
+                <th>Путь до файла</th>
+                <th>Дата загрузки</th>
+
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for uuid, info in files.items() %}
+            {% set ext = info.org.rsplit('.', 1)[-1].lower() if '.' in info.org else '' %}
+            {% set file_uuid = info.get('UUID', uuid) %}
+            {% set file_path = info.get('rel_path', file_uuid + '.' + ext) %}
+            {% set display_path = info.get('rel_path', 'uploads/' + file_uuid + '.' + ext) %}
+
+            <tr>
+                <!-- Имя файла -->
+                <td>
+                    <strong style="color: #333;">{{ info.org }}</strong><br>
+                </td>
+
+                <!-- Путь до файла на сервере -->
+                <td>
+                    <a href="{{ url_for('uploaded_file', filename=file_path) }}"
+                       target="_blank"
+                       style="color: #0052cc;
+                        font-family: monospace;
+                        background: rgba(255,255,255,0.5);
+                        padding: 5px 8px;
+                        border-radius: 6px;
+                        text-decoration: underline;
+                        display: inline-block;">
+                        {{ display_path }}
+                    </a>
+                </td>
+
+                <!-- Дата -->
+                <td>{{ info.get('date', '—') }}</td>
+            </tr>
             {% endfor %}
             {% endif %}
-            {% endwith %}
-
-            <!-- Форма загрузки -->
-            <form action="/upload" method="POST" enctype="multipart/form-data"
-               
-                <div>
-                    <input type="file" name="file" id="file" required>
-                </div>
-                <button type="submit"
-                    style="padding: 10px 25px; background: linear-gradient(135deg, #0062f1, #0052cc); color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: transform 0.2s;">
-                    Загрузить
-                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Test url_for">
-                </button>
-            </form>
-
-
-            <!--  Таблица загруженных файлов -->
-            <h2 style="margin-top: 30px;"> Загруженные файлы</h2>
-
-            {% if files %}
-            <table class="file-table">
-                <thead>
-                    <tr>
-                        
-                        <th>Имя файла</th>
-                        <th>Путь до файла</th>
-                        <th>Дата загрузки</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                    {% for uuid, info in files.items() %}
-                    {% set ext = info.org.rsplit('.', 1)[-1].lower() if '.' in info.org else '' %}
-                    {% set file_uuid = info.get('UUID', key) %} {# fallback на key, если UUID нет в старых записях #}
-                    {% set server_path = 'uploads/' + file_uuid + "." + ext %}
-                    <tr>
-                      
-                        <!-- Имя файла -->
-                        <td>
-                            <strong style="color: #333;">{{ info.org }}</strong><br>
-                            
-                        </td>
-                        <!-- Путь до файла на сервере-->
-                        <td>
-                            <a href="{{ url_for('uploaded_file', filename=file_uuid + '.' + ext) }}" 
-                                target="_blank"
-                                style="color: #0052cc; 
-                                        font-family: monospace; 
-                                        background: rgba(255,255,255,0.5); 
-                                        padding: 5px 8px; 
-                                        border-radius: 6px; 
-                                        text-decoration: underline;
-                                        display: inline-block;">
-                                {{ server_path }}
-                            </a>
-                        </td>
-                        <!-- Дата -->
-                        <td>{{ info.get('date', '—') }}</td>
-
-                    </tr>
-                    {% endfor %}
-                    
-                    {% endif %}
-        </div>
     </div>
-    
+    </div>
+
     </body>
 
 </html>

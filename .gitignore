@@ -207,6 +207,9 @@ marimo/_lsp/
 __marimo__/
 
 
+# .gitignore
 bdofdata/
 uploads/
-
+*.pyc
+__pycache__/
+venv/

@@ -6,6 +6,7 @@ import uuid
 import json
 from datetime import datetime
 from utils import load_json, save_json
+
 app = Flask(__name__)
 
 # Настройки
@@ -15,18 +16,22 @@ app.secret_key = os.urandom(256)
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route('/', methods=['GET'])
 def index():
     user_dct = load_json("bdofdata", "bdofdata.json")
     return render_template('index.html', files=user_dct, upload_dir="bdofdata")
 
-@app.route('/uploads/<filename>')
+
+@app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     """ Предпросмотр файлов из папки uploads"""
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -35,7 +40,7 @@ def upload_file():
         return redirect(url_for('index'))
 
     file = request.files['file']
-    
+
     if not allowed_file(file.filename):
         flash('Недопустимый формат файла', 'error')
         return redirect(url_for('index'))
@@ -48,7 +53,7 @@ def upload_file():
 
     # Загружаем текущую базу
     user_dct = load_json("bdofdata", "bdofdata.json")
-    
+
     # Считаем хеш (опционально: хешируем имя или содержимое)
     md5_hash = hashlib.md5(safe_name.encode('utf-8')).hexdigest()
 
@@ -57,25 +62,29 @@ def upload_file():
         if user_dct[i]["hashed"] == md5_hash:
             flash(f'Файл "{safe_name}" уже был загружен!', 'warning')
             return redirect(url_for('index'))
-            
-    # Сохраняем файл на диск
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], uuid_name)
-    file.save(filepath)
-    
 
-    #loaddata(user_dct, safe_name, uuid)
+    # Сохраняем файл на диск
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], file_uuid[:2], file_uuid[2:4], uuid_name)
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    file.save(filepath)
+
+    rel_path = os.path.relpath(filepath, app.config['UPLOAD_FOLDER'])
+    rel_path = rel_path.replace(os.sep, '/')
+    # loaddata(user_dct, safe_name, uuid)
     # Добавляем запись в словарь и сохраняем JSON
     user_dct[file_uuid] = {
         "UUID": file_uuid,
         "org": safe_name,
+        "rel_path": rel_path,
         "hashed": md5_hash,
         "date": datetime.now().strftime("%d.%m.%Y %H:%M")
 
     }
     save_json("bdofdata", "bdofdata.json", user_dct)
-    
+
     flash(f'Файл "{safe_name}" успешно загружен!', 'success')
     return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
