@@ -1,0 +1,16 @@
+{
+    "admin421": {
+        "username": "admin421",
+        "password": "scrypt:32768:8:1$nfpfGeKDwR2wd5Hm$45b86e09f982d34b16999b8d40769e8bb46f41b2aebe19ecc0dfb4c910e0ed31205f7f4a7326cd67f6b9580d6d297525c90f8095daf3ce5a0832877e6afaa60e",
+        "date": "31.05.2026 23:56",
+        "last_login": "2026-05-31 23:56:28",
+        "is_admin": true
+    },
+    "andrey_4125": {
+        "username": "andrey_4125",
+        "password": "scrypt:32768:8:1$ane0ZY3Mk7Equ2RQ$ff52daa9f2fdb97f842f00f9872376ff2fbfd07ececb15d7f9d20b92a0981862fa162aa99835dcd3fd0c0d9d19bd3c30db2e36d3ca4db19c358e4f1961eb6d15",
+        "date": "31.05.2026 23:56",
+        "last_login": "2026-05-31 23:56:47",
+        "is_admin": false
+    }
+}

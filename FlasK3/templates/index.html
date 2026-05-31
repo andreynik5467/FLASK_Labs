@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+</head>
+<body>
+    <h1>Добро пожаловать!</h1>
+     {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+            <ul class = "flashes">
+            {% for category, message in messages %}
+                <li class>{{message}}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% if current_user.is_authenticated %}
+        <p>Привет, {{ current_user.username }}!</p>
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+        <p><a href="{{ url_for('edit', current_user=current_user) }}"> Добавить пользователя</a></p>
+    {% else %}
+        <p>Авторизуйтесь, пожалуйста</p>
+        <p><a href="{{ url_for('login') }}">Login</a></p>
+    {% endif %}
+
+    <h2>Закрытый раздел</h2>
+    <p><a href="{{ url_for('hidden') }}">Hidden</a></p>
+
+    <h2>Регистрация пользователя</h2>
+    <p><a href="{{ url_for('register') }}">Registration</a></p>
+
+</body>
+</html>
