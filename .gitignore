@@ -213,3 +213,5 @@ uploads/
 *.pyc
 __pycache__/
 venv/
+*.json
+data/

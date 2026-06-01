@@ -19,7 +19,7 @@
     {% if current_user.is_authenticated %}
         <p>Привет, {{ current_user.username }}!</p>
         <p><a href="{{ url_for('logout') }}">Logout</a></p>
-        <p><a href="{{ url_for('edit', current_user=current_user) }}"> Добавить пользователя</a></p>
+        <p><a href="{{ url_for('edit') }}"> Добавить пользователя</a></p>
     {% else %}
         <p>Авторизуйтесь, пожалуйста</p>
         <p><a href="{{ url_for('login') }}">Login</a></p>

@@ -106,8 +106,8 @@ def edit():
             "username": form.username.data,
             "password": hashed_password,
             "date": datetime.now().strftime("%d.%m.%Y %H:%M"),
-            "last_login": datetime.now().strftime("%d.%m.%Y %H:%M"),
-            "is_admin": False  # 👈 Новые пользователи НЕ админы
+            "last_login": None,
+            "is_admin": False
         }
         user_dct[form.username.data] = new_user
         save_json("data", "user.json", user_dct)
@@ -115,24 +115,7 @@ def edit():
         return redirect(url_for("index"))
 
     return render_template("register.html", form=form)
-'''
-        for ids, user in user_dct.items():
-            if user['username'] != form.username.data:
-                continue
-        else:
-            ids = str(form.username.data)
-            hashed_password = generate_password_hash(form.password.data)
-        new_user = {
-            "username": form.username.data,
-            "password": hashed_password,
-            "confirm": hashed_password,
-        }
-        user_dct[ids] = new_user
-        # Запишем не таясь пароль в открытом виде. Чисто в учебных целях
-        save_json("data", "user.json", user_dct)
-        return "Пользователь зарегистрирован!"
-        return render_template("register.html", form=form)
-        '''
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -161,7 +144,7 @@ def register():
             "username": form.username.data,
             "password": hashed_password,
             "date": datetime.now().strftime("%d.%m.%Y %H:%M"),
-            "last_login": datetime.now().strftime("%d.%m.%Y %H:%M"),
+            "last_login": None,
             "is_admin": is_first_user
         }
 
