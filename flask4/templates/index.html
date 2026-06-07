@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+  
+  <!--  Блок фильтров (только если есть данные) -->
+  {% if categories or tags or authors %}
+  <div class="col-lg-3 mb-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h6 class="mb-0"> Фильтры</h6>
+      </div>
+      <div class="card-body">
+        
+        <!-- Фильтр по категории -->
+        <h6 class="mt-3">Категории</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{{ url_for('index') }}" 
+             class="badge {% if not selected_category and not selected_tag and not selected_author %}bg-primary{% else %}bg-secondary{% endif %} text-decoration-none">
+            Все
+          </a>
+          {% for cat in categories %}
+          <a href="{{ url_for('index', category_id=cat.id) }}" 
+             class="badge {% if selected_category == cat.id %}bg-primary{% else %}bg-secondary{% endif %} text-decoration-none">
+            {{ cat.name }}
+          </a>
+          {% endfor %}
+        </div>
+
+        <!-- Фильтр по тегу -->
+        {% if tags %}
+        <h6 class="mt-3">Теги</h6>
+        <div class="d-flex flex-wrap gap-2">
+          {% for tag in tags %}
+          <a href="{{ url_for('index', tag=tag.name) }}" 
+             class="badge {% if selected_tag == tag.name %}bg-primary{% else %}bg-light text-dark{% endif %} text-decoration-none border">
+            {{ tag.name }}
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Фильтр по автору (только для авторизованных) -->
+        {% if current_user.is_authenticated and authors %}
+        <h6 class="mt-3">Авторы</h6>
+        <div class="d-flex flex-wrap gap-2">
+          {% for author in authors %}
+          <a href="{{ url_for('index', author=author.id) }}" 
+             class="badge {% if selected_author == author.id|string %}bg-primary{% else %}bg-secondary{% endif %} text-decoration-none">
+            {{ author.username }}
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Кнопка сброса фильтров -->
+        {% if selected_category or selected_tag or selected_author %}
+        <div class="mt-3">
+          <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary w-100">
+             Сбросить фильтры
+          </a>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Список новостей -->
+  <div class="{% if categories or tags or authors %}col-lg-9{% else %}col-12{% endif %}">
+    <h1 class="mb-4">
+      Последние новости
+      {% if selected_category %}
+        <small class="text-muted fs-6">
+          → Категория: {{ categories|selectattr('id', 'equalto', selected_category)|map(attribute='name')|first }}
+        </small>
+      {% elif selected_tag %}
+        <small class="text-muted fs-6">→ Тег: {{ selected_tag }}</small>
+      {% elif selected_author %}
+        <small class="text-muted fs-6">
+          → Автор: {{ authors|selectattr('id', 'equalto', selected_author|int)|map(attribute='username')|first }}
+        </small>
+      {% endif %}
+    </h1>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for news in news_list %}
+        <div class="col">
+          <div class="card h-100 shadow-sm {% if news.is_private %}border-warning{% endif %}">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="{{ url_for('view_news', id=news.id) }}" class="text-decoration-none">
+                  {{ news.title }}
+                </a>
+                {% if news.is_private %}
+                  <span class="badge bg-warning text-dark ms-2" title="Приватная новость"> </span>
+                {% endif %}
+              </h5>
+              
+              <!-- Краткое содержимое (опционально) -->
+              <p class="card-text text-muted small mt-2">
+                {{ news.content[:100] }}{% if news.content|length > 100 %}...{% endif %}
+              </p>
+            </div>
+            
+            <div class="card-footer bg-white border-0 pt-0 pb-2">
+              <!-- Дата и автор -->
+              <div class="small text-muted mb-2">
+                {{ news.created.strftime('%d.%m.%Y %H:%M') }}
+                {% if news.author %}
+                   Автор: <a href="{{ url_for('index', author=news.author.id) }}" class="text-decoration-none">{{ news.author.username }}</a>
+                {% endif %}
+              </div>
+              
+              <!-- Категория -->
+              <div class="mb-2">
+                <a href="{{ url_for('index', category_id=news.category.id) }}" 
+                   class="badge bg-primary text-light text-decoration-none">
+                  {{ news.category.name }}
+                </a>
+              </div>
+              
+              <!-- Теги -->
+              {% if news.tags %}
+              <div class="mb-2">
+                {% for tag in news.tags %}
+                <a href="{{ url_for('index', tag=tag.name) }}" 
+                   class="badge bg-light text-dark text-decoration-none border me-1">
+                  {{ tag.name }}
+                </a>
+                {% endfor %}
+              </div>
+              {% endif %}
+              
+              <!-- Кнопки редактирования (только для автора) -->
+              {% if current_user.is_authenticated and news.user_id == current_user.id %}
+              <div class="mt-2">
+                <a href="{{ url_for('edit_news', id=news.id) }}" class="btn btn-sm btn-outline-primary"> Редактировать</a>
+                <form action="{{ url_for('delete_news', id=news.id) }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('Удалить эту новость?')">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"> Удалить</button>
+                </form>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col">
+          <div class="alert alert-info">
+            Новостей пока нет.
+            {% if not current_user.is_authenticated %}
+              <a href="{{ url_for('register') }}" class="alert-link">Зарегистрируйтесь</a>, 
+              чтобы создавать свои новости и видеть приватные записи!
+            {% elif not news_list and (selected_category or selected_tag or selected_author) %}
+              Попробуйте <a href="{{ url_for('index') }}" class="alert-link"> сбросить фильтры</a>.
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+</div>
+{% endblock %}

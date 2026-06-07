@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ title }}</h2>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  
+  <div class="mb-3">
+    {{ form.title.label(class="form-label") }}
+    {{ form.title(class="form-control") }}
+    {% for error in form.title.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+  </div>
+  
+  <div class="mb-3">
+    {{ form.content.label(class="form-label") }}
+    {{ form.content(class="form-control", rows=5) }}
+    {% for error in form.content.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+  </div>
+  
+  <div class="mb-3">
+    {{ form.category.label(class="form-label") }}
+    {{ form.category(class="form-select") }}
+  </div>
+  
+  <div class="mb-3">
+    {{ form.tags.label(class="form-label") }}
+    {{ form.tags(class="form-control", placeholder="python, flask, tutorial") }}
+    <small class="text-muted">{{ form.tags.description }}</small>
+  </div>
+  
+  <div class="mb-3 form-check">
+    {{ form.is_private(class="form-check-input") }}
+    {{ form.is_private.label(class="form-check-label") }}
+  </div>
+  
+  <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+  <a href="{{ url_for('index') }}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}
