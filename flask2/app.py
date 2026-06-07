@@ -6,7 +6,7 @@ import uuid
 import json
 from datetime import datetime
 from utils import load_json, save_json
-
+from form import DemoForm
 app = Flask(__name__)
 
 # Настройки
@@ -21,8 +21,15 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    form = DemoForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            flash("Форма успешно отправлена!", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Проверьте корректность введённых данных.", "error")
     user_dct = load_json("bdofdata", "bdofdata.json")
     return render_template('index.html', files=user_dct, upload_dir="bdofdata")
 
