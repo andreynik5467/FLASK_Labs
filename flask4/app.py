@@ -16,7 +16,7 @@ from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(24)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///news.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
@@ -96,9 +96,11 @@ def register():
 @app.route("/category/<int:category_id>")
 def index(category_id=None):
     tag_name = request.args.get("tag")
-    query = News.query
+    query = News.query.filter_by(is_deleted=False)
 
 
+    if not current_user.is_authenticated:
+        query = query.filter_by(is_private=False)
     if not current_user.is_authenticated:
         query = query.filter_by(is_private=False)
     # Фильтр по категории, если задана
@@ -160,7 +162,7 @@ def add_news():
 @app.route("/news/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_news(id):
-    news = News.query.get_or_404(id)
+    news = News.query.filter_by(id=id, is_deleted=False).first_or_404()
     form = NewsForm(obj=news)
     categories = Category.query.all()
     form.category.choices = [(category.id, category.name) for category in categories]
@@ -174,7 +176,7 @@ def edit_news(id):
         news.title = form.title.data
         news.content = form.content.data
         news.category_id = form.category.data
-        news,is_private = form.is_private.data
+        news.is_private = form.is_private.data
         tag_names = [t.strip() for t in form.tags.data.split(",") if t.strip()]
         tags = []
         for tag_name in tag_names:
@@ -200,7 +202,7 @@ def delete_news(id):
 
 @app.route("/news/<int:id>")
 def view_news(id):
-    news = News.query.get_or_404(id)
+    news = News.query.filter_by(id=id, is_deleted = False).first_or_404()
     categories = Category.query.all()
     return render_template("news_detail.html", news=news, categories=categories)
 
@@ -267,6 +269,7 @@ def edit_tag(id):
         flash("Тег успешно обновлен", "success")
         return redirect(url_for("tags"))
     return render_template("tag_form.html", form=form, title="Редактировать тег")
+
 
 
 if __name__ == "__main__":
