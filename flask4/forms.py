@@ -25,7 +25,7 @@ class NewsForm(FlaskForm):
     content = TextAreaField('Содержание', validators=[DataRequired(), Length(min=11, max=2048)])
     category = SelectField('Категория', coerce=int, validators=[DataRequired()])
     tags = StringField('Теги (через запятую)', description="Введите теги через запятую")
-    is_private = BooleanField('Приватная новость (видна только автору)')
+    is_private = BooleanField('Приватная новость ')#(видна только зарегестрированым пользователям)
     submit = SubmitField('Сохранить')
 
 class CategoryForm(FlaskForm):
