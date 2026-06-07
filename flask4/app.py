@@ -27,6 +27,7 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -50,12 +51,14 @@ def login():
     
     return render_template('login.html', form=form)  # ← показываем форму при GET
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('Вы вышли из системы', 'info')
     return redirect(url_for('index'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -127,6 +130,7 @@ def index(category_id=None):
         selected_tag=tag_name,
     )
 
+
 @app.route("/news/add", methods=["GET", "POST"])
 @login_required
 def add_news():
@@ -190,6 +194,8 @@ def edit_news(id):
         flash("Новость успешно обновлена", "success")
         return redirect(url_for("index"))
     return render_template("news_form.html", form=form, title="Редактировать новость")
+
+
 @app.route("/news/delete/<int:id>", methods=["GET", "POST"])
 @login_required
 def delete_news(id):
@@ -199,6 +205,7 @@ def delete_news(id):
 
     flash("Новость успешно удалена", "success")
     return redirect(url_for("index"))
+
 
 @app.route("/news/<int:id>")
 def view_news(id):
@@ -271,6 +278,9 @@ def edit_tag(id):
     return render_template("tag_form.html", form=form, title="Редактировать тег")
 
 
+#создание бд, если её нету
+with app.app_context():
+    db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True)
